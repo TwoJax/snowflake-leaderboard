@@ -3,11 +3,10 @@ import {
   collection,
   doc,
   getFirestore,
-  orderBy,
-  query,
   setDoc,
 } from 'firebase/firestore';
 import { defineStore } from 'pinia';
+import { computed } from 'vue';
 import { useCollection } from 'vuefire';
 
 const firebaseConfig = {
@@ -22,24 +21,20 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const timeEntriesCollection = query(collection(db, 'time_entries'), orderBy('time'));
+const timeEntriesCollection = collection(db, 'time_entries');
 
 export const useTimeEntriesStore = defineStore('leaderboard', () => {
   const timeEntries = useCollection(timeEntriesCollection);
 
+  const allTimeEntries = computed(() => timeEntries.value.sort((a, b) => a.time.replace(':', '') - b.time.replace(':', '')));
+
   async function addTimeEntry(timeEntry) {
-    const timeEntryAttrs = Object.assign(timeEntry, {
-      time: `${timeEntry.minutes}:${timeEntry.seconds}`,
-    });
-
-    delete timeEntryAttrs.minutes;
-    delete timeEntryAttrs.seconds;
-
-    await setDoc(doc(db, 'time_entries', timeEntry.id), timeEntryAttrs);
+    await setDoc(doc(db, 'time_entries', timeEntry.id), timeEntry);
   }
 
   return {
     addTimeEntry,
+    allTimeEntries,
     timeEntries,
   };
 });

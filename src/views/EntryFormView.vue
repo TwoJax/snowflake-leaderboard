@@ -63,8 +63,11 @@
                   type="number"
                   id="minutes"
                   name="minutes"
+                  inputmode="numeric"
                   min="0"
+                  pattern="[-+]?[0-9]*[.,]?[0-9]+"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-mid-blue sm:text-sm sm:leading-6"
+                  @blur="validateMinutes"
                 >
               </div>
             </div>
@@ -80,10 +83,12 @@
                   type="number"
                   id="seconds"
                   name="seconds"
+                  inputmode="numeric"
                   max="59"
                   min="0"
+                  pattern="[-+]?[0-9]*[.,]?[0-9]+"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-mid-blue sm:text-sm sm:leading-6"
-                  @keyup="timeEntry.seconds = Math.min(timeEntry.seconds, 59)"
+                  @blur="validateSeconds"
                 >
               </div>
             </div>
@@ -92,7 +97,7 @@
           <div class="!mt-12">
             <button
               class="flex w-full justify-center rounded-md bg-mid-blue px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-mid-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mid-blue"
-              @click.prevent="store.addTimeEntry(timeEntry)"
+              @click.prevent="addTimeEntry"
             >
               Create entry
             </button>
@@ -104,16 +109,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useTimeEntriesStore } from '@/stores/time_entries';
 
 const store = useTimeEntriesStore();
 
-const timeEntry = ref({
+const timeEntrySchema = {
   id: '',
   first_name: '',
   last_name: '',
   minutes: '',
   seconds: '',
-});
+};
+
+const timeEntry = ref({ ...timeEntrySchema });
+
+const time = computed(() => `${timeEntry.value.minutes}:${timeEntry.value.seconds}`);
+
+function addTimeEntry() {
+  store.addTimeEntry({ ...timeEntry.value, time: time.value }).then(() => {
+    timeEntry.value = { ...timeEntrySchema };
+  });
+}
+
+function validateMinutes() {
+  const minutes = Math.max(timeEntry.value.minutes, 0);
+
+  timeEntry.value.minutes = minutes.toLocaleString('en-US', { minimumIntegerDigits: 2 });
+}
+
+function validateSeconds() {
+  const seconds = Math.min(timeEntry.value.seconds, 59);
+
+  timeEntry.value.seconds = seconds.toLocaleString('en-US', { minimumIntegerDigits: 2 });
+}
 </script>

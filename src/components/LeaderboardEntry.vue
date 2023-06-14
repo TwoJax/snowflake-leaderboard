@@ -1,26 +1,22 @@
 <template>
-  <tr class="rounded-lg bg-white shadow">
-    <td class="pl-10 py-4 rounded-bl-lg rounded-tl-lg w-32">#{{ rank }}</td>
+  <li class="flex items-center rounded-lg bg-white shadow">
+    <div class="pl-10 py-4 rounded-bl-lg rounded-tl-lg w-32 text-gray-400 italic text-sm">#{{ rank }}</div>
 
-    <td class="py-4">
-      <div class="flex flex-col">
-        <div class="text-lg font-bold">
-          {{ timeEntry.first_name }} {{ timeEntry.last_name }}
-        </div>
-
-        <div class="text-gray-500">
-          {{ timeEntry.id }}
-        </div>
+    <div class="py-4 flex flex-col flex-1">
+      <div class="text-lg font-bold">
+        {{ timeEntry.first_name }} {{ timeEntry.last_name }}
       </div>
-    </td>
 
-    <td class="font-semibold pr-16 py-4 rounded-br-lg rounded-tr-lg text-right">{{ timeEntry.time }}</td>
-  </tr>
+      <div class="text-gray-500">
+        {{ timeEntry.id }}
+      </div>
+    </div>
+
+    <div class="font-semibold pr-16 py-4 rounded-br-lg rounded-tr-lg text-right">{{ timeEntry.time }}</div>
+  </li>
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
-
 defineProps({
   rank: {
     type: Number,
